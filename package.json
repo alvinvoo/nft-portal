@@ -1,0 +1,19 @@
+{
+  "name": "nft-portal",
+  "version": "1.0.0",
+  "description": "nft portal that takes in user NRIC to mint NFT",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate && cp ./build/contracts/MyNFT.json ./client/src/"
+  },
+  "author": "alvin voo",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.2"
+  }
+}
