@@ -19,9 +19,8 @@ func CreateReceipt(c *fiber.Ctx) error {
 		})
 	}
 
-	// Convert NRIC and WalletAddress to uppercase
+	// Convert NRIC to uppercase
 	receipt.NRIC = strings.ToUpper(receipt.NRIC)
-	receipt.WalletAddress = strings.ToUpper(receipt.WalletAddress)
 
 	// Check if NRIC and WalletAddress are empty
 	if len(receipt.NRIC) == 0 || len(receipt.WalletAddress) == 0 {

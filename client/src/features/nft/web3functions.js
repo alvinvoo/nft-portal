@@ -26,7 +26,10 @@ const getMintedToken = async (userAddress) => {
   }
 }
 
-export const mintNFT = async (image, name, description) => {
+export const mintNFT = async ({
+  image, name, description }, 
+  receipt
+  ) => {
   // Create a new web3 instance and connect to metamask for write operation 
   const web3 = new Web3(window.ethereum);
 
@@ -55,7 +58,7 @@ export const mintNFT = async (image, name, description) => {
   const transactionParameters = {
     to: contractAddress, // Required except during contract publications.
     from: address, // must match user's active address.
-    'data': contract.methods.mintNFT(address, tokenURI).encodeABI(), //make call to NFT smart contract 
+    'data': contract.methods.mintNFT(address, receipt, tokenURI).encodeABI(), //make call to NFT smart contract 
   };
 
   console.log(transactionParameters)

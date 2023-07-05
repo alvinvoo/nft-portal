@@ -23,6 +23,7 @@ import {
 } from '../wallet/walletSlice';
 import { mintNFT } from './web3functions';
 import { getAccountBalance } from '../account/Account';
+import { getReceipt } from './getReceipt';
 
 const onMintPressed = async (dispatch, {
   nric, name, image, description
@@ -35,29 +36,10 @@ const onMintPressed = async (dispatch, {
   }
 
   const address = window.ethereum.selectedAddress;
-  try {
-    // first get the NRIC and wallet address receipt
-    const response = await fetch('http://localhost:4008/receipt',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "nric": nric,
-          "wallet_address": address
-        }),
-      });
-    const data = await response.json();
-    if (response.status !== 200) {
-      dispatch(setWalletStatus("😥 " + data['message']));
-      return
-    }
+  const { success: receiptSuccess, status: receiptStatus, receipt } = await getReceipt(nric, address)
 
-    const receipt = data['receipt'];
-    console.log(receipt)
-  } catch (error) {
-    dispatch(setWalletStatus("😥 Could not get receipt from server: " + error.message));
+  if (!receiptSuccess) {
+    dispatch(setWalletStatus(receiptStatus))
     return
   }
 
@@ -66,7 +48,9 @@ const onMintPressed = async (dispatch, {
     success,
     status,
     mintedToken,
-  } = await mintNFT(image, name, description);
+  } = await mintNFT({
+    image, name, description
+  }, receipt);
 
   if (success) {
     const balance = await getAccountBalance(address);

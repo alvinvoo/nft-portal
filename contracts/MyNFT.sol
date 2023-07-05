@@ -14,6 +14,9 @@ contract MyNFT is ERC721URIStorage, Ownable {
   // Mapping to check if a token has already been minted
   mapping(string => bool) private tokenExists;
 
+  // Mapping to track the receipt for each user
+  mapping(address => string) private userReceipts;
+
   // Max mintable tokens
   uint public constant MAX_TOKENS = 5;
 
@@ -32,7 +35,7 @@ contract MyNFT is ERC721URIStorage, Ownable {
     return _tokenIds.current();
   }
 
-  function mintNFT(address recipient, string calldata tokenURI) external returns (uint) {
+  function mintNFT(address recipient, string calldata receipt, string calldata tokenURI) external returns (uint) {
     require(block.timestamp >= mintStart && block.timestamp <= mintEnd, "Minting is not currently allowed");
     require(totalSupply() < MAX_TOKENS, "Maximum number of tokens exceeded");
     require(bytes(userMintedTokens[recipient]).length == 0, "An address can only mint once");
@@ -45,6 +48,7 @@ contract MyNFT is ERC721URIStorage, Ownable {
     _setTokenURI(newItemId, tokenURI);
 
     userMintedTokens[recipient] = tokenURI;
+    userReceipts[recipient] = receipt; 
     tokenExists[tokenURI] = true;
 
     return newItemId;
@@ -64,5 +68,9 @@ contract MyNFT is ERC721URIStorage, Ownable {
 
   function getMintedToken(address user) external view returns (string memory) {
     return userMintedTokens[user];
+  }
+
+  function getReceipt(address user) external view returns (string memory) {
+    return userReceipts[user];
   }
 }
