@@ -7,9 +7,8 @@ A place for users to mint NFT with their NRIC and wallet address
 - Ganache UI or ganache-cli
 - Truffle@latest framework
 - InterPlanetary File System / IPFS
-- React.js
-- Solidity
-- OpenZeppelin
+- Docker
+- Docker-compose
 
 ## Step by step guide to setup
 The below instructions are assuming you have linux or MAC machine with bash shell terminal
@@ -172,5 +171,6 @@ Since NRIC is a PII, it is generally not recommended to store it on chain becaus
 
 ## TODOs / bugs
 1. Any on chain transaction will take some time to confirm, currently I just get the minted tokens straight after the minting is done. It's better to have a polling mechanism that loop for the completion of `receipt = await web3.eth.getTransactionReceipt(txHash);`
-2. Each NFT Token should be unique. This is checked in the contract here `require(!tokenExists[tokenURI], "Token already exists");`. But currently frontend doesn't have any check on the metadata fields. That means, the transaction will fail if the metadata repeats existings ones.
+2. Each NFT Token should be unique. This is checked in the contract here `require(!tokenExists[tokenURI], "Token already exists");`. But currently frontend doesn't have any check on the metadata fields. That means, the transaction will fail without error if the metadata repeats existings ones.
 3. The current flow of first creating the receipt (storing the NRIC and wallet address) will have issue if user later on cancel the transaction (on MetaMask, or some other tx failure). Since the row is already created in DB, the same user will be blocked to mint again the next time. A proper solution would be to introduce a `isMinted` column, and let the callback of 1. update it (via another API call).
+4. Environment variables for React.js. Currently they are hardcoded.
