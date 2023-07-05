@@ -35,14 +35,6 @@ export const mintNFT = async (image, name, description) => {
   contractAddress = web3.utils.toChecksumAddress(contractAddress);
   const contract = new web3.eth.Contract(contractInterface.abi, contractAddress);
 
-  //error handling
-  if (image.trim() === "" || (name.trim() === "" || description.trim() === "")) {
-    return {
-      success: false,
-      status: "❗Please make sure all fields are completed before minting.",
-    }
-  }
-
   const metadata = {
     name, image, description
   }

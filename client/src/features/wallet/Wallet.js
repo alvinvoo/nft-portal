@@ -15,7 +15,7 @@ const connectWallet = async () => {
                 method: "eth_requestAccounts",
             });
             const obj = {
-                status: "👆🏽 Write a message in the text-field above.",
+                status: "👆🏽 Please complete the text fields above.",
                 address: addressArray[0],
             };
             return obj;
@@ -65,7 +65,7 @@ const addWalletListener = (dispatch) => {
 
         dispatch(setWalletState({
           walletAddress: accounts[0],
-          status: "👆🏽 Write a message in the text-field above.",
+          status: "👆🏽 Please complete the text fields above.",
           balance,
         }));
       } else {

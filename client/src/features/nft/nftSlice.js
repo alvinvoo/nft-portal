@@ -53,6 +53,7 @@ export const {
   setMintedToken,
  } = nftSlice.actions;
 
+export const selectNRIC = (state) => state.nft.nric;
 export const selectNFTName = (state) => state.nft.name;
 export const selectNFTDescription = (state) => state.nft.description;
 export const selectNFTImage = (state) => state.nft.image;

@@ -39,7 +39,7 @@ func CreateReceipt(c *fiber.Ctx) error {
 	}
 
 	// Create a string with NRIC and WalletAddress
-	// Did not take directly from c.Body() because API Body param keys is case-insensitive
+	// Did not take directly from c.Body() because body keys can be different for different content-type
 	data := fmt.Sprintf("NRIC=%s&WalletAddress=%s", receipt.NRIC, receipt.WalletAddress)
 
 	// Hash the data using SHA-256

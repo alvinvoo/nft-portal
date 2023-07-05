@@ -13,6 +13,7 @@ import {
   selectNFTName,
   selectNFTDescription,
   selectNFTImage,
+  selectNRIC,
 } from './nftSlice';
 
 import {
@@ -24,8 +25,42 @@ import { mintNFT } from './web3functions';
 import { getAccountBalance } from '../account/Account';
 
 const onMintPressed = async (dispatch, {
-  name, image, description
+  nric, name, image, description
 }) => { 
+
+  //error handling
+  if (nric.trim() === "" || image.trim() === "" || (name.trim() === "" || description.trim() === "")) {
+    dispatch(setWalletStatus("❗Please make sure all fields are completed before minting."));
+    return
+  }
+
+  const address = window.ethereum.selectedAddress;
+  try {
+    // first get the NRIC and wallet address receipt
+    const response = await fetch('http://localhost:4008/receipt',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "nric": nric,
+          "wallet_address": address
+        }),
+      });
+    const data = await response.json();
+    if (response.status !== 200) {
+      dispatch(setWalletStatus("😥 " + data['message']));
+      return
+    }
+
+    const receipt = data['receipt'];
+    console.log(receipt)
+  } catch (error) {
+    dispatch(setWalletStatus("😥 Could not get receipt from server: " + error.message));
+    return
+  }
+
   dispatch(setMinting(true)); // Start loading at the beginning of the operation
   const {
     success,
@@ -34,7 +69,6 @@ const onMintPressed = async (dispatch, {
   } = await mintNFT(image, name, description);
 
   if (success) {
-    const address = window.ethereum.selectedAddress;
     const balance = await getAccountBalance(address);
 
     console.log(`new balance ${balance}`)
@@ -45,7 +79,7 @@ const onMintPressed = async (dispatch, {
       balance
     }));
   } else {
-    dispatch(setWalletStatus('Opps, something wrong happened'));
+    dispatch(setWalletStatus(status));
   }
 
   dispatch(setMinting(false)); // End loading after the operation is performed
@@ -53,7 +87,7 @@ const onMintPressed = async (dispatch, {
     dispatch(setWalletStatus(status));
     dispatch(setMintedToken(mintedToken));
   } else {
-    dispatch(setWalletStatus("Opps, some error occured."));
+    dispatch(setWalletStatus(status));
   }
 };
 
@@ -63,6 +97,7 @@ export const NFT = () => {
 
   const status = useSelector(selectWalletStatus);
 
+  const nric = useSelector(selectNRIC);
   const name = useSelector(selectNFTName);
   const description = useSelector(selectNFTDescription);
   const image = useSelector(selectNFTImage);
@@ -71,7 +106,7 @@ export const NFT = () => {
 
   const handleOnMintPressed = () => {
     onMintPressed(dispatch, {
-      name, description, image
+      nric, name, description, image
     });
   };
 
@@ -83,6 +118,7 @@ export const NFT = () => {
           type="text"
           placeholder="e.g. S1234567R "
           onChange={(event) => dispatch(setNRIC(event.target.value))}
+          required
         />
 
         <h2> 🚀 NFT Name: </h2>
@@ -90,6 +126,7 @@ export const NFT = () => {
           type="text"
           placeholder="e.g. NFT number #1!"
           onChange={(event) => dispatch(setNFTName(event.target.value))}
+          required
         />
 
         <h2> 🚀 NFT Description: </h2>
@@ -97,6 +134,7 @@ export const NFT = () => {
           type="text"
           placeholder="e.g. Type something cool here ;)"
           onChange={(event) => dispatch(setNFTDescription(event.target.value))}
+          required
         />
 
         <h2> 🚀 Link to Digital Asset (e.g, IPFS link): </h2>
@@ -104,6 +142,7 @@ export const NFT = () => {
           type="text"
           placeholder="e.g. http://localhost:8080/ipfs/QmSimUVgZxkQ4vK2Qh2kcMruebQ9kyWdWNBE88CyXRnu5n"
           onChange={(event) => dispatch(setNFTImage(event.target.value))}
+          required
         />
       </form>
       <button id="mintButton" onClick={handleOnMintPressed} disabled={minting}>
