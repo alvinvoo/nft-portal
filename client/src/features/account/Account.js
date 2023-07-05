@@ -5,7 +5,7 @@ export const getAccountBalance = async(address) => {
     return ""; // or any default value
   }
 
-  const web3 = new Web3(window.ethereum);
+  const web3 = new Web3('http://localhost:8545');
   const checksumAddress = web3.utils.toChecksumAddress(address);
   const balanceInWei = await web3.eth.getBalance(checksumAddress);
   const balanceInEther = web3.utils.fromWei(balanceInWei, "ether");

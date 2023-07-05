@@ -2,21 +2,15 @@ import Web3 from 'web3';
 import { uploadToIPFS } from '../ipfs/IPFS';
 const contractInterface = require('../../MyNFT.json')
 
-// Create a new web3 instance and connect to the blockchain
-const web3 = new Web3(window.ethereum);
-
-// Get the contract instance`
-let contractAddress = contractInterface.networks['1337'].address
-contractAddress = web3.utils.toChecksumAddress(contractAddress);
-const contract = new web3.eth.Contract(contractInterface.abi, contractAddress);
-
 const getMintedToken = async (userAddress) => {
-  try {
-    const tokenId = await contract.methods.getMintedToken(userAddress).call();
-    console.log(`Token ${tokenId}`)
+  // needs to connect directly to the blockchain for instant read operation
+  const web3 = new Web3('http://localhost:8545'); 
 
-    // Call the contract's tokenURI 
-    const tokenUri = await contract.methods.tokenURI(tokenId).call();
+  // Get the contract instance
+  const contractAddress = contractInterface.networks['1337'].address
+  const contract = new web3.eth.Contract(contractInterface.abi, contractAddress);
+  try {
+    const tokenUri = await contract.methods.getMintedToken(userAddress).call();
 
     // Fetch the image URL from the token's JSON
     const response = await fetch(tokenUri);
@@ -33,6 +27,14 @@ const getMintedToken = async (userAddress) => {
 }
 
 export const mintNFT = async (image, name, description) => {
+  // Create a new web3 instance and connect to metamask for write operation 
+  const web3 = new Web3(window.ethereum);
+
+  // Get the contract instance`
+  let contractAddress = contractInterface.networks['1337'].address
+  contractAddress = web3.utils.toChecksumAddress(contractAddress);
+  const contract = new web3.eth.Contract(contractInterface.abi, contractAddress);
+
   //error handling
   if (image.trim() === "" || (name.trim() === "" || description.trim() === "")) {
     return {
@@ -56,18 +58,12 @@ export const mintNFT = async (image, name, description) => {
     };
   }
 
-  //load smart contract
-  const contract = new web3.eth.Contract(contractInterface.abi, contractAddress);
-
   const address = window.ethereum.selectedAddress;
-  const nonce = await web3.eth.getTransactionCount(address);
-
   //set up your Ethereum transaction
   const transactionParameters = {
     to: contractAddress, // Required except during contract publications.
     from: address, // must match user's active address.
     'data': contract.methods.mintNFT(address, tokenURI).encodeABI(), //make call to NFT smart contract 
-    nonce: nonce.toString()
   };
 
   console.log(transactionParameters)

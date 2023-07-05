@@ -16,9 +16,12 @@ import {
 } from './nftSlice';
 
 import {
+  selectWalletStatus,
+  setWalletState,
   setWalletStatus
 } from '../wallet/walletSlice';
 import { mintNFT } from './web3functions';
+import { getAccountBalance } from '../account/Account';
 
 const onMintPressed = async (dispatch, {
   name, image, description
@@ -29,20 +32,21 @@ const onMintPressed = async (dispatch, {
     status,
     mintedToken,
   } = await mintNFT(image, name, description);
-  // const {
-  //   success,
-  //   status,
-  //   mintedToken,
-  // } = {
-  //   success: true,
-  //   status: "yes",
-  //   mintedToken: {
-  //     name: "test1",
-  //     description: "desc2",
-  //     image: "https://placekitten.com/200/300",
-  //     URL: "google.com",
-  //   },
-  // };
+
+  if (success) {
+    const address = window.ethereum.selectedAddress;
+    const balance = await getAccountBalance(address);
+
+    console.log(`new balance ${balance}`)
+
+    dispatch(setWalletState({
+      status,
+      walletAddress: address,
+      balance
+    }));
+  } else {
+    dispatch(setWalletStatus('Opps, something wrong happened'));
+  }
 
   dispatch(setMinting(false)); // End loading after the operation is performed
   if (success) {
@@ -56,6 +60,8 @@ const onMintPressed = async (dispatch, {
 export const NFT = () => {
   const minting = useSelector(selectMinting);
   const token = useSelector(selectMintedToken);
+
+  const status = useSelector(selectWalletStatus);
 
   const name = useSelector(selectNFTName);
   const description = useSelector(selectNFTDescription);
@@ -110,6 +116,9 @@ export const NFT = () => {
           "Mint NFT ⛏️"
         )}
       </button>
+      <p id="status">
+        {status}
+      </p>
 
       <h2>Minted Token: </h2>
       <p>Token URL: {token.URL}</p>

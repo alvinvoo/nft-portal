@@ -14,10 +14,28 @@ contract MyNFT is ERC721URIStorage, Ownable {
   // Mapping to check if a token has already been minted
   mapping(string => bool) private tokenExists;
 
-  constructor() ERC721("MyNFT", "NFT") {}
+  // Max mintable tokens
+  uint public constant MAX_TOKENS = 5;
+
+  // in seconds
+  uint public mintStart;
+  uint public mintEnd;
+
+  constructor() ERC721("MyNFT", "NFT") {
+    // Set mintStart to July 4th, 2023 at 00:00:00 UTC
+    mintStart = 1688428800;
+    // Set mintEnd to July 14th, 2023 at 00:00:00 UTC
+    mintEnd = 1689292800;
+  }
+
+  function totalSupply() public view returns (uint) {
+    return _tokenIds.current();
+  }
 
   function mintNFT(address recipient, string calldata tokenURI) external returns (uint) {
-    require(bytes(userMintedTokens[recipient]).length > 0, "An address can only mint once");
+    require(block.timestamp >= mintStart && block.timestamp <= mintEnd, "Minting is not currently allowed");
+    require(totalSupply() < MAX_TOKENS, "Maximum number of tokens exceeded");
+    require(bytes(userMintedTokens[recipient]).length == 0, "An address can only mint once");
     require(!tokenExists[tokenURI], "Token already exists");
 
     _tokenIds.increment();
@@ -36,6 +54,12 @@ contract MyNFT is ERC721URIStorage, Ownable {
   function withdrawETH() public onlyOwner {
     uint balance = address(this).balance;
     payable(owner()).transfer(balance);
+  }
+
+  function setMintPeriod(uint start, uint end) external onlyOwner {
+    require(end > start, "End time must be later than start time");
+    mintStart = start;
+    mintEnd = end;
   }
 
   function getMintedToken(address user) external view returns (string memory) {
