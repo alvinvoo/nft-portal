@@ -141,6 +141,25 @@ npm start
 
 The browser should be opened up by now. And you should see the app at localhost:3000.
 
+## Debugging
+If you are interested to read the state of the smart contract, you can use `truffle console`
+
+Run the command in `nft-portal/` directory
+
+For e.g. To check the totalSupply, mintedToken and Receipt
+```bash
+truffle(development)> let instance = await MyNFT.deployed()
+undefined
+truffle(development)> instance.address
+'0x595b371fb87f318F95c13459a8D99468808B5F4B'
+truffle(development)> await instance.totalSupply()
+BN { negative: 0, words: [ 1, <1 empty item> ], length: 1, red: null } 
+truffle(development)> await instance.getMintedToken("0x50724CA40d6A63D363b997a734f869CAD2e8c1Bd")
+'http://localhost:8080/ipfs/QmZDDvixggUgN9rMj6J89Mh3wj4ERKRQstuabRFKRVsfqs'
+truffle(development)> await instance.getReceipt("0x50724CA40d6A63D363b997a734f869CAD2e8c1Bd")
+'e0ce6af94f81d2c70d3f57e349e7450596611f8880f1a39e240985b991e92337'
+```
+
 ## Architecture
 ![image](./docs/figures/Arch.drawio.png)
 
