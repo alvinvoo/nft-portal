@@ -106,6 +106,7 @@ If you haven't done so yet,
 ```bash
 git clone git@github.com:alvinvoo/nft-portal.git
 cd nft-portal
+npm install
 ```
 The below command will compile, migrate the smart contract and copy the JSON interface file into src/
 ```bash
@@ -193,3 +194,4 @@ Since NRIC is a PII, it is generally not recommended to store it on chain becaus
 2. Each NFT Token should be unique. This is checked in the contract here `require(!tokenExists[tokenURI], "Token already exists");`. But currently frontend doesn't have any check on the metadata fields. That means, the transaction will fail without error if the metadata repeats existings ones.
 3. The current flow of first creating the receipt (storing the NRIC and wallet address) will have issue if user later on cancel the transaction (on MetaMask, or some other tx failure). Since the row is already created in DB, the same user will be blocked to mint again the next time. A proper solution would be to introduce a `isMinted` column, and let the callback of 1. update it (via another API call).
 4. Environment variables for React.js. Currently they are hardcoded.
+5. Dynamic generation of NFT images. Currently its manually provided by user.
